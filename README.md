@@ -66,3 +66,4 @@ auto-commiter/
 - The script will create 100 commits, so use a dedicated repository
 - Press Ctrl+C to stop the scheduler
 - Each modification adds a unique timestamped comment to the script
+# advance-autocommiter
