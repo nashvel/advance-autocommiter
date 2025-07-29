@@ -41,11 +41,11 @@ class AutoCommitter:
             with open(self.target_file, 'w', encoding='utf-8') as f:
                 f.write(modified_content)
                 
-            print(f"✅ Modified changes.txt (change #{self.commit_count + 1})")
+            print(f"Modified changes.txt (change #{self.commit_count + 1})")
             return True
             
         except Exception as e:
-            print(f"❌ Error modifying changes.txt: {e}")
+            print(f"Error modifying changes.txt: {e}")
             return False
     
     def git_commit_only(self):
@@ -61,14 +61,14 @@ class AutoCommitter:
             commit_msg = f"Auto-commit #{self.commit_count + 1} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             subprocess.run(['git', 'commit', '-m', commit_msg], cwd=repo_dir, check=True)
             
-            print(f"✅ Committed change #{self.commit_count + 1}")
+            print(f"Committed change #{self.commit_count + 1}")
             return True
             
         except subprocess.CalledProcessError as e:
-            print(f"❌ Git commit error: {e}")
+            print(f"Git commit error: {e}")
             return False
         except Exception as e:
-            print(f"❌ Error in git commit: {e}")
+            print(f"Error in git commit: {e}")
             return False
     
     def git_push_all(self):
@@ -80,21 +80,21 @@ class AutoCommitter:
             # Push to GitHub
             subprocess.run(['git', 'push'], cwd=repo_dir, check=True)
             
-            print(f"🚀 Successfully pushed all commits to GitHub!")
+            print(f"Successfully pushed all commits to GitHub!")
             return True
             
         except subprocess.CalledProcessError as e:
-            print(f"❌ Git push error: {e}")
+            print(f"Git push error: {e}")
             return False
         except Exception as e:
-            print(f"❌ Error in git push: {e}")
+            print(f"Error in git push: {e}")
             return False
     
     def run_commit_cycle(self):
         """Run the complete cycle of 100 modifications and commits"""
-        print(f"🚀 Starting auto-commit cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"📁 Working on: {self.target_file}")
-        print(f"📝 Note: Will commit locally after each change, then push all at the end for speed!")
+        print(f"Starting auto-commit cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Working on: {self.target_file}")
+        print(f"Note: Will commit locally after each change, then push all at the end for speed!")
         
         success_count = 0
         
@@ -108,30 +108,30 @@ class AutoCommitter:
                 # Commit locally (no push yet)
                 if self.git_commit_only():
                     success_count += 1
-                    print(f"✅ Successfully completed change {i + 1}")
+                    print(f"Successfully completed change {i + 1}")
                 else:
-                    print(f"❌ Failed to commit change {i + 1}")
+                    print(f"Failed to commit change {i + 1}")
             else:
-                print(f"❌ Failed to modify changes.txt for change {i + 1}")
+                print(f"Failed to modify changes.txt for change {i + 1}")
         
-        print(f"\n🎉 All changes completed! Successfully processed {success_count}/{self.max_commits} changes")
+        print(f"All changes completed! Successfully processed {success_count}/{self.max_commits} changes")
         
         # Now push all commits at once
         if success_count > 0:
-            print(f"\n🚀 Pushing all {success_count} commits to GitHub...")
+            print(f"Pushing all {success_count} commits to GitHub...")
             if self.git_push_all():
-                print(f"✅ All commits successfully pushed to GitHub!")
+                print(f"All commits successfully pushed to GitHub!")
             else:
-                print(f"❌ Failed to push commits to GitHub")
+                print(f"Failed to push commits to GitHub")
         
-        print(f"⏰ Finished at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Finished at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     def setup_scheduler(self):
         """Set up the scheduler to run at 6 AM daily"""
         schedule.every().day.at("06:00").do(self.run_commit_cycle)
         
-        print("📅 Scheduler set up to run at 6:00 AM daily")
-        print("⏰ Waiting for next scheduled run...")
+        print("Scheduler set up to run at 6:00 AM daily")
+        print("Waiting for next scheduled run...")
         print("Press Ctrl+C to stop the scheduler")
         
         try:
@@ -139,7 +139,7 @@ class AutoCommitter:
                 schedule.run_pending()
                 time.sleep(60)  # Check every minute
         except KeyboardInterrupt:
-            print("\n👋 Scheduler stopped by user")
+            print("\nScheduler stopped by user")
 
 def main():
     """Main function"""
@@ -157,7 +157,7 @@ def main():
             print("  python auto_committer.py --run-now    # Run immediately")
             print("  python auto_committer.py --schedule   # Run with daily scheduler")
     else:
-        print("🤖 Auto-Committer Script")
+        print("Auto-Committer Script")
         print("This script modifies changes.txt 100 times and commits each change to GitHub.")
         print("\nUsage:")
         print("  python auto_committer.py --run-now    # Run immediately")
@@ -165,34 +165,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Auto-generated comment 1: 2025-07-29 09:11:39 - Random: 9717
-# Auto-generated comment 2: 2025-07-29 09:11:42 - Random: 3737
-# Auto-generated comment 3: 2025-07-29 09:11:46 - Random: 4167
-# Auto-generated comment 4: 2025-07-29 09:11:49 - Random: 1658
-# Auto-generated comment 5: 2025-07-29 09:11:52 - Random: 4991
-# Auto-generated comment 6: 2025-07-29 09:11:55 - Random: 4556
-# Auto-generated comment 7: 2025-07-29 09:11:58 - Random: 3986
-# Auto-generated comment 8: 2025-07-29 09:12:02 - Random: 9340
-# Auto-generated comment 9: 2025-07-29 09:12:05 - Random: 8216
-# Auto-generated comment 10: 2025-07-29 09:12:08 - Random: 3785
-# Auto-generated comment 11: 2025-07-29 09:12:11 - Random: 9924
-# Auto-generated comment 12: 2025-07-29 09:12:14 - Random: 9557
-# Auto-generated comment 13: 2025-07-29 09:12:17 - Random: 5643
-# Auto-generated comment 14: 2025-07-29 09:12:21 - Random: 3282
-# Auto-generated comment 15: 2025-07-29 09:12:24 - Random: 8815
-# Auto-generated comment 16: 2025-07-29 09:12:27 - Random: 1933
-# Auto-generated comment 17: 2025-07-29 09:12:30 - Random: 7693
-# Auto-generated comment 18: 2025-07-29 09:12:33 - Random: 6069
-# Auto-generated comment 19: 2025-07-29 09:12:37 - Random: 3517
-# Auto-generated comment 20: 2025-07-29 09:12:40 - Random: 8555
-# Auto-generated comment 21: 2025-07-29 09:12:43 - Random: 1003
-# Auto-generated comment 22: 2025-07-29 09:12:46 - Random: 3681
-# Auto-generated comment 23: 2025-07-29 09:12:49 - Random: 4836
-# Auto-generated comment 24: 2025-07-29 09:12:53 - Random: 7921
-# Auto-generated comment 25: 2025-07-29 09:12:56 - Random: 2581
-# Auto-generated comment 26: 2025-07-29 09:12:59 - Random: 4256
-# Auto-generated comment 27: 2025-07-29 09:13:02 - Random: 9233
-# Auto-generated comment 28: 2025-07-29 09:13:05 - Random: 9681
-# Auto-generated comment 29: 2025-07-29 09:13:09 - Random: 1559
-# Auto-generated comment 30: 2025-07-29 09:13:12 - Random: 5072
