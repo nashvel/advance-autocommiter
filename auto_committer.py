@@ -16,31 +16,36 @@ import schedule
 class AutoCommitter:
     def __init__(self):
         self.script_path = os.path.abspath(__file__)
+        self.target_file = os.path.join(os.path.dirname(self.script_path), 'changes.txt')
         self.commit_count = 0
         self.max_commits = 100
         
-    def modify_self(self):
-        """Modify this script file by adding a comment with timestamp"""
+    def modify_target_file(self):
+        """Modify the changes.txt file by adding a timestamp line"""
         try:
-            with open(self.script_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+            # Read existing content
+            if os.path.exists(self.target_file):
+                with open(self.target_file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+            else:
+                content = "change me 100 times."
             
-            # Add a timestamp comment at the end
+            # Add a timestamp line
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             random_num = random.randint(1000, 9999)
-            new_comment = f"\n# Auto-generated comment {self.commit_count + 1}: {timestamp} - Random: {random_num}"
+            new_line = f"Change #{self.commit_count + 1}: {timestamp} - Random: {random_num}"
             
-            # Append the comment
-            modified_content = content + new_comment
+            # Append the new line
+            modified_content = content + "\n" + new_line
             
-            with open(self.script_path, 'w', encoding='utf-8') as f:
+            with open(self.target_file, 'w', encoding='utf-8') as f:
                 f.write(modified_content)
                 
-            print(f"✅ Modified script (change #{self.commit_count + 1})")
+            print(f"✅ Modified changes.txt (change #{self.commit_count + 1})")
             return True
             
         except Exception as e:
-            print(f"❌ Error modifying script: {e}")
+            print(f"❌ Error modifying changes.txt: {e}")
             return False
     
     def git_commit_and_push(self):
@@ -72,7 +77,7 @@ class AutoCommitter:
     def run_commit_cycle(self):
         """Run the complete cycle of 100 modifications and commits"""
         print(f"🚀 Starting auto-commit cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"📁 Working on: {self.script_path}")
+        print(f"📁 Working on: {self.target_file}")
         
         success_count = 0
         
@@ -81,10 +86,10 @@ class AutoCommitter:
             
             print(f"\n--- Processing change {i + 1}/{self.max_commits} ---")
             
-            # Modify the script
-            if self.modify_self():
-                # Wait a moment to ensure file system updates
-                time.sleep(1)
+            # Modify the target file
+            if self.modify_target_file():
+                # Minimal delay to ensure file system updates
+                time.sleep(0.1)
                 
                 # Commit and push
                 if self.git_commit_and_push():
@@ -93,10 +98,10 @@ class AutoCommitter:
                 else:
                     print(f"❌ Failed to commit change {i + 1}")
             else:
-                print(f"❌ Failed to modify script for change {i + 1}")
+                print(f"❌ Failed to modify changes.txt for change {i + 1}")
             
-            # Small delay between operations
-            time.sleep(2)
+            # Minimal delay between operations for speed
+            time.sleep(0.2)
         
         print(f"\n🎉 Completed! Successfully processed {success_count}/{self.max_commits} changes")
         print(f"⏰ Finished at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -133,7 +138,7 @@ def main():
             print("  python auto_committer.py --schedule   # Run with daily scheduler")
     else:
         print("🤖 Auto-Committer Script")
-        print("This script modifies itself 100 times and commits each change to GitHub.")
+        print("This script modifies changes.txt 100 times and commits each change to GitHub.")
         print("\nUsage:")
         print("  python auto_committer.py --run-now    # Run immediately")
         print("  python auto_committer.py --schedule   # Run with daily scheduler at 6 AM")
