@@ -48,8 +48,8 @@ class AutoCommitter:
             print(f"❌ Error modifying changes.txt: {e}")
             return False
     
-    def git_commit_and_push(self):
-        """Commit and push changes to GitHub"""
+    def git_commit_only(self):
+        """Commit changes locally (no push)"""
         try:
             # Get current directory
             repo_dir = os.path.dirname(self.script_path)
@@ -61,23 +61,40 @@ class AutoCommitter:
             commit_msg = f"Auto-commit #{self.commit_count + 1} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             subprocess.run(['git', 'commit', '-m', commit_msg], cwd=repo_dir, check=True)
             
-            # Push to GitHub
-            subprocess.run(['git', 'push'], cwd=repo_dir, check=True)
-            
-            print(f"✅ Committed and pushed change #{self.commit_count + 1}")
+            print(f"✅ Committed change #{self.commit_count + 1}")
             return True
             
         except subprocess.CalledProcessError as e:
-            print(f"❌ Git error: {e}")
+            print(f"❌ Git commit error: {e}")
             return False
         except Exception as e:
-            print(f"❌ Error in git operations: {e}")
+            print(f"❌ Error in git commit: {e}")
+            return False
+    
+    def git_push_all(self):
+        """Push all commits to GitHub"""
+        try:
+            # Get current directory
+            repo_dir = os.path.dirname(self.script_path)
+            
+            # Push to GitHub
+            subprocess.run(['git', 'push'], cwd=repo_dir, check=True)
+            
+            print(f"🚀 Successfully pushed all commits to GitHub!")
+            return True
+            
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Git push error: {e}")
+            return False
+        except Exception as e:
+            print(f"❌ Error in git push: {e}")
             return False
     
     def run_commit_cycle(self):
         """Run the complete cycle of 100 modifications and commits"""
         print(f"🚀 Starting auto-commit cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"📁 Working on: {self.target_file}")
+        print(f"📝 Note: Will commit locally after each change, then push all at the end for speed!")
         
         success_count = 0
         
@@ -88,22 +105,25 @@ class AutoCommitter:
             
             # Modify the target file
             if self.modify_target_file():
-                # Minimal delay to ensure file system updates
-                time.sleep(0.1)
-                
-                # Commit and push
-                if self.git_commit_and_push():
+                # Commit locally (no push yet)
+                if self.git_commit_only():
                     success_count += 1
                     print(f"✅ Successfully completed change {i + 1}")
                 else:
                     print(f"❌ Failed to commit change {i + 1}")
             else:
                 print(f"❌ Failed to modify changes.txt for change {i + 1}")
-            
-            # Minimal delay between operations for speed
-            time.sleep(0.2)
         
-        print(f"\n🎉 Completed! Successfully processed {success_count}/{self.max_commits} changes")
+        print(f"\n🎉 All changes completed! Successfully processed {success_count}/{self.max_commits} changes")
+        
+        # Now push all commits at once
+        if success_count > 0:
+            print(f"\n🚀 Pushing all {success_count} commits to GitHub...")
+            if self.git_push_all():
+                print(f"✅ All commits successfully pushed to GitHub!")
+            else:
+                print(f"❌ Failed to push commits to GitHub")
+        
         print(f"⏰ Finished at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     def setup_scheduler(self):
