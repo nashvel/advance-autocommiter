@@ -18,7 +18,7 @@ class AutoCommitter:
         self.script_path = os.path.abspath(__file__)
         self.target_file = os.path.join(os.path.dirname(self.script_path), 'changes.txt')
         self.commit_count = 0
-        self.max_commits = 50
+        self.max_commits = 25
         
     def modify_target_file(self):
         """Modify the changes.txt file by adding a timestamp line"""
@@ -158,7 +158,7 @@ def main():
             print("  python auto_committer.py --schedule   # Run with daily scheduler")
     else:
         print("Auto-Committer Script")
-        print("This script modifies changes.txt 50 times and commits each change to GitHub.")
+        print("This script modifies changes.txt 25 times and commits each change to GitHub.")
         print("\nUsage:")
         print("  python auto_committer.py --run-now    # Run immediately")
         print("  python auto_committer.py --schedule   # Run with daily scheduler at 6 AM")
