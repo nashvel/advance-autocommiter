@@ -21,13 +21,12 @@ def build_executable():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     gui_script = os.path.join(script_dir, "auto_committer_gui.py")
     
-    # PyInstaller command
+    # PyInstaller command - use Python module to avoid PATH issues
     cmd = [
-        "pyinstaller",
+        sys.executable, "-m", "PyInstaller",
         "--onefile",  # Create a single executable file
         "--windowed",  # Hide console window (GUI app)
         "--name", "AutoCommitter-GUI",  # Name of the executable
-        "--icon", "NONE",  # No icon for now
         "--distpath", os.path.join(script_dir, "dist"),  # Output directory
         "--workpath", os.path.join(script_dir, "build"),  # Build directory
         "--specpath", script_dir,  # Spec file location

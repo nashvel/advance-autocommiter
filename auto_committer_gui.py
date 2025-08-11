@@ -18,8 +18,19 @@ class AutoCommitterCore:
     """Core logic for the auto-committer, separated from GUI"""
     
     def __init__(self, progress_callback=None, log_callback=None):
+        # For executable, we need to find the actual project directory
+        if getattr(sys, 'frozen', False):
+            # Running as executable - look for git repo in current working directory
+            self.project_dir = os.getcwd()
+            # If no .git found, try the directory where the exe is located
+            if not os.path.exists(os.path.join(self.project_dir, '.git')):
+                self.project_dir = os.path.dirname(sys.executable)
+        else:
+            # Running as script
+            self.project_dir = os.path.dirname(os.path.abspath(__file__))
+        
         self.script_path = os.path.abspath(__file__)
-        self.target_file = os.path.join(os.path.dirname(self.script_path), 'changes.txt')
+        self.target_file = os.path.join(self.project_dir, 'changes.txt')
         self.commit_count = 0
         self.max_commits = 100
         self.progress_callback = progress_callback
@@ -31,6 +42,27 @@ class AutoCommitterCore:
         print(message)
         if self.log_callback:
             self.log_callback(message)
+    
+    def get_startup_info(self):
+        """Get startup information about the current environment"""
+        info = []
+        info.append(f"Working directory: {self.project_dir}")
+        info.append(f"Target file: {self.target_file}")
+        
+        # Check git status
+        git_dir = os.path.join(self.project_dir, '.git')
+        if os.path.exists(git_dir):
+            info.append("✅ Git repository found")
+        else:
+            info.append("❌ No git repository found")
+        
+        # Check if changes.txt exists
+        if os.path.exists(self.target_file):
+            info.append("✅ changes.txt file found")
+        else:
+            info.append("📝 changes.txt will be created")
+        
+        return "\n".join(info)
     
     def update_progress(self, current, total):
         """Update progress"""
@@ -68,9 +100,15 @@ class AutoCommitterCore:
     def commit_and_push(self):
         """Commit changes and push to GitHub"""
         try:
+            # Check if we're in a git repository
+            if not os.path.exists(os.path.join(self.project_dir, '.git')):
+                self.log(f"Error: No git repository found in {self.project_dir}")
+                self.log("Please run the executable from your project directory or copy it there.")
+                return False
+            
             # Add changes to git
             result = subprocess.run(['git', 'add', '.'], 
-                                  capture_output=True, text=True, cwd=os.path.dirname(self.script_path))
+                                  capture_output=True, text=True, cwd=self.project_dir)
             if result.returncode != 0:
                 self.log(f"Git add failed: {result.stderr}")
                 return False
@@ -78,14 +116,14 @@ class AutoCommitterCore:
             # Commit changes
             commit_message = f"Auto-commit #{self.commit_count + 1}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             result = subprocess.run(['git', 'commit', '-m', commit_message], 
-                                  capture_output=True, text=True, cwd=os.path.dirname(self.script_path))
+                                  capture_output=True, text=True, cwd=self.project_dir)
             if result.returncode != 0:
                 self.log(f"Git commit failed: {result.stderr}")
                 return False
             
             # Push to GitHub
             result = subprocess.run(['git', 'push'], 
-                                  capture_output=True, text=True, cwd=os.path.dirname(self.script_path))
+                                  capture_output=True, text=True, cwd=self.project_dir)
             if result.returncode != 0:
                 self.log(f"Git push failed: {result.stderr}")
                 return False
@@ -221,6 +259,9 @@ class AutoCommitterGUI:
         # Configure text area to expand
         main_frame.rowconfigure(6, weight=1)
         
+        # Show startup information
+        self.show_startup_info()
+        
     def get_commit_count(self):
         """Get the selected commit count"""
         if self.commit_var.get() == "custom":
@@ -281,6 +322,14 @@ class AutoCommitterGUI:
     def _log_message_ui(self, message):
         """Add message to log in main thread"""
         self.log_text.insert(tk.END, message + "\n")
+        self.log_text.see(tk.END)
+    
+    def show_startup_info(self):
+        """Display startup information in the log"""
+        startup_info = self.core.get_startup_info()
+        self.log_text.insert(tk.END, "=== Auto-Committer GUI Started ===\n")
+        self.log_text.insert(tk.END, startup_info + "\n")
+        self.log_text.insert(tk.END, "=" * 35 + "\n\n")
         self.log_text.see(tk.END)
 
 
